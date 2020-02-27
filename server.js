@@ -3,7 +3,7 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
 app.get('/', function(req, res) {
-    res.sendFile('/home/ugc/jianan.ding1/Desktop/Chat/public' + '/index.html');
+    res.sendFile('\index.html');
 });
 
 io.on('connection', connected_id);
