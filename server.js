@@ -1,21 +1,27 @@
-var app = require('express')();
-var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+var port = 3000;
 
-app.get('/', function(req, res) {
-    res.sendFile('\index.html');
+server.listen(port, function() {
+    console.log('Server listerning at port 3000');
 });
 
-io.on('connection', connected_id);
+app.use(express.static('public'));
 
-http.listen(3000, function() {
-    console.log('listening on *:3000');
-});
+io.on('connection', newConnection);
 
-function connected_id(socket) {
+function newConnection(socket) {
     // console.log('new connection: ' + socket.id);
 
-    socket.on('chat message', function(msg) {
-        io.emit('chat message', msg);
-    });
+    // listen for incoming messgae
+    socket.on('chat message', getMessage);
+}
+
+function getMessage(msg) {
+    var today = new Date();
+    var time = today.getHours() > 9? today.getHours() + ":" : "0" + today.getHours() + ":"; 
+    time += today.getMinutes() > 9? today.getMinutes(): "0" + today.getMinutes();
+    io.emit('chat message', {msg, time});
 }

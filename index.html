@@ -15,39 +15,25 @@
                 color: cornsilk;
                 position: absolute;
                 bottom: 5%;
-                overflow-y: hidden;
+                overflow-y: auto;
                 max-height: 95%;
                 width: 100vw;
             }
             #messages li {
                 padding: 5px 10px;
+                font-size: large;
             }
-
-            /* #messages li:nth-child(odd) { background: #eee; } */
+            #time_stamps {
+                color: cornsilk;
+                font-weight: bold;
+                display: inline;
+            }
         </style>
     </head>
 
-    <script src="client.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
-        $(function () {
-            var socket = io();
-            $('form').submit(function(e){
-                e.preventDefault(); // prevents page reloading
-                socket.emit('chat message', $('#m').val());
-                $('#m').val('');
-                return false;
-            });
-            socket.on('chat message', function(msg){
-                var today = new Date();
-                var time = today.getHours() > 9? today.getHours() + ":" : "0" + today.getHours() + ":"; 
-                time += today.getMinutes() > 9? today.getMinutes(): "0" + today.getMinutes();
-                time += "  " + msg;
-                $('#messages').append($('<li>').text(time));
-            });
-        });
-    </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/client.js"></script>
 
     <body>
         <ul id="messages"></ul>
