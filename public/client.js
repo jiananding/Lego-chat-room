@@ -1,6 +1,6 @@
 var socket = io();
 var name;
-var color = [0, 0, 0];
+var color = "rgb(0, 0, 0)";
 $(function () {
     // socket.connect('http://localhost:3000');
 
@@ -9,8 +9,9 @@ $(function () {
         var msg = $('#m').val();
 
         if (msg.charAt(0) == '/') {
-            if (msg.slice(0, 6) == "/nickc") {
-                $('#messages').append(`<li><b style="color: white;">Your are ${name} now.</b></li>`);
+            if (msg.slice(0, 15) == "/nickcolor rgb(") {
+                var new_color = msg.slice(11, msg.length);
+                socket.emit('change nick color', {sender: name, new_color});
             }
             else if (msg.slice(0, 7) == "/nick <"){
                 var new_name = msg.slice(7, msg.length-1);
@@ -30,6 +31,7 @@ $(function () {
     socket.on('user name', function(data) {
         name = data.name;
         color = data.color;
+        // document.cookie = `name=${name}`;
         $('#messages').append(`<li><b style="color: white;">Your are <div id=user_name style="color:${color}">${name}</div> now.</b></li>`);
     });
 
@@ -45,7 +47,7 @@ $(function () {
     socket.on('new user name', function(data) {
         if (name == data.sender) {
             name = data.new_name;
-            $('#messages').append(`<li><b style="color: white;">Your are <div id=user_name style="color:${color}">${name}</div> now.</b></li>`);
+            $('#messages').append(`<li><b style="color: white;">You have change your user name to <div id=user_name style="color:${color}">${name}</div> now.</b></li>`);
         }
     });
 
@@ -53,5 +55,30 @@ $(function () {
         if (name == data.sender) {
             $('#messages').append(`<li><b style="color: white;">User name <div id=user_name style="color:${color}">${data.new_name}</div> already exist, please try a new one.</b></li>`);
         }
-    })
+    });
+
+    socket.on('new user name color', function(data) {
+        if (name == data.sender) {
+            color = data.color;
+            $('#messages').append(`<li><b style="color: white;">Your user name color has been change to <div id=user_name style="color:${color}">${data.color}</div>.</b></li>`);
+        }
+    });
+
+    socket.on('has cookie or not', function() {
+        var value = getCookie("name");
+        if (value){
+            socket.emit('has cookie or not', {c_name: value})
+        }
+        else {
+            socket.emit('has cookie or not', {c_name: null})
+        }
+    });
+
+    // reference: javascript.info/cookie
+    function getCookie(name) {
+        let matches = document.cookie.match(new RegExp(
+          "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        ));
+        return matches ? decodeURIComponent(matches[1]) : undefined;
+    }
 });
