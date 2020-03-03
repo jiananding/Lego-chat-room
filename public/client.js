@@ -15,7 +15,6 @@ $(function () {
             else if (msg.slice(0, 7) == "/nick <"){
                 var new_name = msg.slice(7, msg.length-1);
                 socket.emit('change nick name', {sender: name, new_name});
-                // $('#messages').append(`<li><b style="color: white;">Your are ${name} now.</b></li>`);
             }
             else {
                 $('#messages').append(`<li><b style="color: white;">Undefine command, please try again.</b></li>`);
@@ -23,15 +22,15 @@ $(function () {
         }
         else {
             socket.emit('chat message', {msg, sender: name, color});
-            $('#m').val('');
         }
+        $('#m').val('');
         return false;
     });
 
     socket.on('user name', function(data) {
         name = data.name;
         color = data.color;
-        $('#messages').append(`<li><b style="color: white;">Your are ${name} now.</b></li>`);
+        $('#messages').append(`<li><b style="color: white;">Your are <div id=user_name style="color:${color}">${name}</div> now.</b></li>`);
     });
 
     socket.on('chat message', function(data) {
@@ -43,5 +42,16 @@ $(function () {
         }
     });
 
+    socket.on('new user name', function(data) {
+        if (name == data.sender) {
+            name = data.new_name;
+            $('#messages').append(`<li><b style="color: white;">Your are <div id=user_name style="color:${color}">${name}</div> now.</b></li>`);
+        }
+    });
+
+    socket.on('new user name fail', function(data) {
+        if (name == data.sender) {
+            $('#messages').append(`<li><b style="color: white;">User name <div id=user_name style="color:${color}">${data.new_name}</div> already exist, please try a new one.</b></li>`);
+        }
+    })
 });
-// color=rgb(${color[0]}, ${color[1]}, ${color[2]}
