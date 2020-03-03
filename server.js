@@ -62,9 +62,12 @@ function changeNickName(data) {
         var color = current_user.get(sender);
         current_user.delete(sender);
         current_user.set(new_name, color);
-        // socket.emit('user name', {name, color});
+        console.log(current_user);
+        // better change this
+        io.emit('new user name', {new_name, sender});
+        // need funtion to upadte the displace of current user
     }
     else {
-        // new name exist in current user map
+        io.emit('new user name fail', {new_name, sender});
     }
 }
