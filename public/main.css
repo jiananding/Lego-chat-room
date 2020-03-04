@@ -33,7 +33,7 @@ form button {width: 9%;
     bottom: 5%;
     overflow-y: auto;
     max-height: 95%;
-    width: 100vw;
+    width: 85vw;
 }
 #messages li {
     padding: 5px 10px;
@@ -51,4 +51,16 @@ form button {width: 9%;
 #msg {
     color: white;
     display: inline;
+}
+#online {
+    list-style-type: none;
+    overflow-y: auto;
+    float: right;
+    height: 95%;
+    width: 15vw;
+    background-color: violet;
+}
+#online li {
+    padding: 5px 10px;
+    font-size: large;
 }

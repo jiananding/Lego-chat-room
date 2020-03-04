@@ -81,4 +81,12 @@ $(function () {
         ));
         return matches ? decodeURIComponent(matches[1]) : undefined;
     }
+
+    socket.on('update current user', function(data) {
+        console.log("i am in");
+        $('#online').empty();
+        for (let i = 0; i < data.all_names.length; i++) {
+            $('#online').append(`<li><div id=user_name style="color:${data.all_color[i]}">${data.all_names[i]}</div></li>`);
+        }
+    });
 });
