@@ -16,7 +16,7 @@ app.use(express.static('public'));
 io.on('connect', newConnection);
 
 function newConnection(socket) {
-    console.log('new connection: ' + socket.id);
+    // console.log('new connection: ' + socket.id);
     // initial setup for new user
     init_user(socket);
 
@@ -34,7 +34,7 @@ function newConnection(socket) {
     socket.on('disconnect', function() {
         var temp = getKeyByValue(s_id);
         current_user.delete(temp);
-        console.log(current_user);
+        update_current_user()
     });
 }
 
@@ -64,7 +64,7 @@ function init_user(socket) {
         } 
         else {
             name = data.c_name;
-            // check if the name exist in the current user now, which mean check the nickname was taken or not
+            // check if the name exist in the current user now, which mean check the cookie nickname was taken or not
             if (current_user.has(name)) {
                 name = fake_name[Math.round(Math.floor(Math.random()*10))];
                 while (current_user.has(name)) {
@@ -74,6 +74,7 @@ function init_user(socket) {
         }
         current_user.set(name, [color, socket.id]);
         socket.emit('user name', {name, color});
+        update_current_user()
     });
 }
 
@@ -85,6 +86,7 @@ function changeNickName(data) {
         current_user.delete(sender);
         current_user.set(new_name, value);
         io.emit('new user name', {new_name, sender});
+        update_current_user()
     }
     else {
         io.emit('new user name fail', {new_name, sender});
@@ -99,6 +101,7 @@ function changeNickColor(data) {
     current_user.set(sender, value);
     new_color = current_user.get(sender);
     io.emit('new user name color', {sender, color: new_color[0]});
+    update_current_user()
 }
 
 function getKeyByValue(id) {
@@ -107,4 +110,16 @@ function getKeyByValue(id) {
             return key;
         }
     }
+}
+
+function update_current_user() {
+    console.log(current_user);
+    console.log("");
+    var all_names = [];
+    var all_color = [];
+    for (const [key, value] of current_user.entries()) {
+        all_names.push(key);
+        all_color.push(value[0]);
+    }
+    io.sockets.emit('update current user', {all_names, all_color});
 }
