@@ -1,0 +1,2 @@
+<li><div id='time_stamps'>16:00</div> <div id='user_name' style='color:rgb(20, 6, 228)'>James</div> <div id='msg'>hello word</div></li>
+<li><div id='time_stamps'>16:00</div> <div id='user_name' style='color:rgb(20, 6, 228)'>James</div> <div id='msg'>hello</div></li>

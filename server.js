@@ -18,6 +18,7 @@ io.on('connect', newConnection);
 function newConnection(socket) {
     // console.log('new connection: ' + socket.id);
     // initial setup for new user
+    get_log();
     init_user(socket);
 
     // listen for incoming messgae
@@ -46,6 +47,7 @@ function getMessage(data) {
     var msg = data.msg;
     var color = data.color;
     io.emit('chat message', {sender, msg, time, color});
+    update_log(time, sender, msg, color);
 }
 
 function init_user(socket) {
@@ -122,4 +124,26 @@ function update_current_user() {
         all_color.push(value[0]);
     }
     io.sockets.emit('update current user', {all_names, all_color});
+}
+
+function update_log(time, sender, msg, color){
+    var fs = require('fs');
+    fs.appendFile('chat_log.txt', `<li><div id='time_stamps'>${time}</div> <div id='user_name' style='color:${color}'>${sender}</div> <div id='msg'>${msg}</div></li>\n`, function(err) {
+        if (err) throw err;
+    });
+}
+
+function get_log() {
+    var fs = require('fs');
+    var history;
+    fs.readFile('chat_log.txt', {encoding: 'utf8'}, function(err, contents) {
+        if (err) {
+            throw err;
+        } else {
+            console.log(contents);
+            history = contents;
+        }
+    });
+    // return history;
+    console.log(history);
 }
