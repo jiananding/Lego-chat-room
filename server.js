@@ -13,7 +13,7 @@ server.listen(port, function() {
 
 app.use(express.static('public'));
 
-io.on('connection', newConnection);
+io.on('connect', newConnection);
 
 function newConnection(socket) {
     console.log('new connection: ' + socket.id);
@@ -28,6 +28,14 @@ function newConnection(socket) {
 
     // change nick name color event
     socket.on('change nick color', changeNickColor);
+
+    // socket id
+    var s_id = socket.id;
+    socket.on('disconnect', function() {
+        var temp = getKeyByValue(s_id);
+        current_user.delete(temp);
+        console.log(current_user);
+    });
 }
 
 function getMessage(data) {
@@ -43,21 +51,18 @@ function getMessage(data) {
 function init_user(socket) {
     socket.emit('has cookie or not');
     socket.on('has cookie or not', function(data) {
-        console.log("init user socket on ");
         var r = Math.round(Math.random() * 255);
         var g = Math.round(Math.random() * 255);
         var b = Math.round(Math.random() * 255);
         var color = `rgb(${r}, ${g}, ${b})`
         var name;
         if (data.c_name == null) {
-            console.log("client does not have the name cookie");    
             name = fake_name[Math.round(Math.floor(Math.random()*10))];
             while (current_user.has(name)) {
                 name = fake_name[Math.floor(Math.random()*10)];
             }
         } 
         else {
-            console.log("client have the name cookie");
             name = data.c_name;
             // check if the name exist in the current user now, which mean check the nickname was taken or not
             if (current_user.has(name)) {
@@ -67,7 +72,7 @@ function init_user(socket) {
                 }
             }
         }
-        current_user.set(name, color);
+        current_user.set(name, [color, socket.id]);
         socket.emit('user name', {name, color});
     });
 }
@@ -76,11 +81,9 @@ function changeNickName(data) {
     var sender = data.sender;
     var new_name = data.new_name;
     if (!current_user.has(new_name)) {
-        var color = current_user.get(sender);
+        var value = current_user.get(sender);
         current_user.delete(sender);
-        current_user.set(new_name, color);
-        console.log(current_user);
-        // better change this
+        current_user.set(new_name, value);
         io.emit('new user name', {new_name, sender});
     }
     else {
@@ -91,8 +94,17 @@ function changeNickName(data) {
 function changeNickColor(data) {
     var sender = data.sender;
     var new_color = data.new_color;
-
-    current_user.set(sender, new_color);
+    var value = current_user.get(sender);
+    value[0] = new_color;
+    current_user.set(sender, value);
     new_color = current_user.get(sender);
-    io.emit('new user name color', {sender, color: new_color});
+    io.emit('new user name color', {sender, color: new_color[0]});
+}
+
+function getKeyByValue(id) {
+    for (const [key, value] of current_user.entries()) {
+        if (value[1] == id) {
+            return key;
+        }
+    }
 }
