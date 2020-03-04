@@ -32,35 +32,35 @@ $(function () {
         name = data.name;
         color = data.color;
         // document.cookie = `name=${name}`;
-        $('#messages').append(`<li><b style="color: white;">Your are <div id=user_name style="color:${color}">${name}</div> now.</b></li>`);
+        $('#messages').append(`<li><b style='color: white;'>Your are <div id='user_name' style='color:${color}'>${name}</div> now.</b></li>`);
     });
 
     socket.on('chat message', function(data) {
         if (data.sender != name) {
-            $('#messages').append(`<li><div id=time_stamps>${data.time}</div> <div id=user_name style="color:${data.color}">${data.sender}</div> <div id=msg>${data.msg}<div/></li>`);
+            $('#messages').append(`<li><div id='time_stamps'>${data.time}</div> <div id='user_name' style='color:${data.color}'>${data.sender}</div> <div id='msg'>${data.msg}<div/></li>`);
         }
         else if (data.sender == name) {
-            $('#messages').append(`<li><div id=time_stamps>${data.time}</div> <div id=user_name style="color:${color}">${data.sender}</div> <b id=msg>${data.msg}</b></li>`);
+            $('#messages').append(`<li><div id='time_stamps'>${data.time}</div> <div id='user_name' style='color:${color}'>${data.sender}</div> <b id='msg'>${data.msg}</b></li>`);
         }
     });
 
     socket.on('new user name', function(data) {
         if (name == data.sender) {
             name = data.new_name;
-            $('#messages').append(`<li><b style="color: white;">You have change your user name to <div id=user_name style="color:${color}">${name}</div> now.</b></li>`);
+            $('#messages').append(`<li><b style='color: white;'>You have change your user name to <div id=user_name style='color:${color}'>${name}</div> now.</b></li>`);
         }
     });
 
     socket.on('new user name fail', function(data) {
         if (name == data.sender) {
-            $('#messages').append(`<li><b style="color: white;">User name <div id=user_name style="color:${color}">${data.new_name}</div> already exist, please try a new one.</b></li>`);
+            $('#messages').append(`<li><b style='color: white;'>User name <div id=user_name style='color:${color}'>${data.new_name}</div> already exist, please try a new one.</b></li>`);
         }
     });
 
     socket.on('new user name color', function(data) {
         if (name == data.sender) {
             color = data.color;
-            $('#messages').append(`<li><b style="color: white;">Your user name color has been change to <div id=user_name style="color:${color}">${data.color}</div>.</b></li>`);
+            $('#messages').append(`<li><b style='color: white;'>Your user name color has been change to <div id=user_name style='color:${color}'>${data.color}</div>.</b></li>`);
         }
     });
 
@@ -86,7 +86,16 @@ $(function () {
         console.log("i am in");
         $('#online').empty();
         for (let i = 0; i < data.all_names.length; i++) {
-            $('#online').append(`<li><div id=user_name style="color:${data.all_color[i]}">${data.all_names[i]}</div></li>`);
+            $('#online').append(`<li><div id=user_name style='color:${data.all_color[i]}'>${data.all_names[i]}</div></li>`);
+        }
+    });
+
+    socket.on('upload history', function(msg) {
+        // reference: https://stackoverflow.com/questions/34491459/split-a-string-of-html-into-an-array-by-particular-tags
+        var all_msg = msg.match(/<li>.*?<\/li>/g);
+
+        for (let i = 0; i < all_msg.length; i++) {
+            $('#messages').append(all_msg[i]);
         }
     });
 });
