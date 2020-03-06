@@ -6,6 +6,7 @@ var port = 3001;
 
 var current_user = new Map();
 var fake_name = ["Stephen", "James", "David", "Richard", "Kenneth", "Edward", "Olivia", "Emma", "Sophica", "Isabella"];
+var log_history = [];
 
 server.listen(port, function() {
     console.log(`Server listerning at port ${port}`);
@@ -18,7 +19,6 @@ io.on('connect', newConnection);
 function newConnection(socket) {
     // console.log('new connection: ' + socket.id);
     // initial setup for new user
-    get_log();
     init_user(socket);
 
     // listen for incoming messgae
@@ -35,7 +35,7 @@ function newConnection(socket) {
     socket.on('disconnect', function() {
         var temp = getKeyByValue(s_id);
         current_user.delete(temp);
-        update_current_user()
+        update_current_user();
     });
 }
 
@@ -76,6 +76,7 @@ function init_user(socket) {
         }
         current_user.set(name, [color, socket.id]);
         socket.emit('user name', {name, color});
+        socket.emit('upload history', log_history);
         update_current_user()
     });
 }
@@ -115,8 +116,8 @@ function getKeyByValue(id) {
 }
 
 function update_current_user() {
-    console.log(current_user);
-    console.log("");
+    // console.log(current_user);
+    // console.log("");
     var all_names = [];
     var all_color = [];
     for (const [key, value] of current_user.entries()) {
@@ -126,24 +127,9 @@ function update_current_user() {
     io.sockets.emit('update current user', {all_names, all_color});
 }
 
-function update_log(time, sender, msg, color){
-    var fs = require('fs');
-    fs.appendFile('chat_log.txt', `<li><div id='time_stamps'>${time}</div> <div id='user_name' style='color:${color}'>${sender}</div> <div id='msg'>${msg}</div></li>\n`, function(err) {
-        if (err) throw err;
-    });
-}
-
-function get_log() {
-    var fs = require('fs');
-    var history;
-    fs.readFile('chat_log.txt', {encoding: 'utf8'}, function(err, contents) {
-        if (err) {
-            throw err;
-        } else {
-            console.log(contents);
-            history = contents;
-        }
-    });
-    // return history;
-    console.log(history);
+function update_log(time, sender, msg, color) {
+    if (log_history.length >= 200) {
+        log_history.shift();
+    }
+    log_history.push(`<li><div id='time_stamps'>${time}</div> <div id='user_name' style='color:${color}'>${sender}</div> <div id='msg'>${msg}</div></li>\n`);
 }
