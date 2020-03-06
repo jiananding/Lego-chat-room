@@ -83,19 +83,15 @@ $(function () {
     }
 
     socket.on('update current user', function(data) {
-        console.log("i am in");
         $('#online').empty();
         for (let i = 0; i < data.all_names.length; i++) {
             $('#online').append(`<li><div id=user_name style='color:${data.all_color[i]}'>${data.all_names[i]}</div></li>`);
         }
     });
 
-    socket.on('upload history', function(msg) {
-        // reference: https://stackoverflow.com/questions/34491459/split-a-string-of-html-into-an-array-by-particular-tags
-        var all_msg = msg.match(/<li>.*?<\/li>/g);
-
-        for (let i = 0; i < all_msg.length; i++) {
-            $('#messages').append(all_msg[i]);
+    socket.on('upload history', function(log) {
+        for (let i = 0; i < log.length; i++) {
+            $('#messages').append(log[i]);
         }
     });
 });
