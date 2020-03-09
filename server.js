@@ -131,5 +131,5 @@ function update_log(time, sender, msg, color) {
     if (log_history.length >= 200) {
         log_history.shift();
     }
-    log_history.push(`<li><div id='time_stamps'>${time}</div> <div id='user_name' style='color:${color}'>${sender}</div> <div id='msg'>${msg}</div></li>\n`);
+    log_history.push(`<li><div class="message-data"><span class="message-data-name" style="color: ${color}">${sender}</span><span class="message-data-time"${time}</span></div><div class="message other-message">${msg}</div></li>\n`);
 }
